@@ -1,0 +1,11 @@
+﻿body {
+}
+
+
+btnsty1 {
+    background: blue;
+    color: white;
+    margin: 10px;
+    padding: 10px;
+    display: inline-block;
+}
