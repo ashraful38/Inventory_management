@@ -52,6 +52,9 @@
             padding:5px;
            margin:2px;
          }
+         .auto-style54 {
+             height: 56px;
+         }
     </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
@@ -103,9 +106,9 @@
         </tr>
     </table>
      </div>
-        <h4>
+        <h4 class="">
             <br />
-            <span class="auto-style52">Product List</span><br />
+            <span style="text-align:center">Product List</span><br />
         <br />
         </h4>
         <div class="auto-style51">

@@ -15,12 +15,14 @@ namespace InventoryMangement1
         SqlCommand cmd;
         SqlDataAdapter da;
         DataSet ds;
+        DataTable dl1 = new DataTable();
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
                 filldropdownlist();
                 FillGridView();
+                addGridView();
             }
         }
 
@@ -72,6 +74,25 @@ namespace InventoryMangement1
 
         }
 
+        void addGridView() 
+        {
+
+           
+            
+            if (ViewState["add"] == null)
+            {
+                dl1.Columns.Add("ProductId");
+                dl1.Columns.Add("ProductName");
+                dl1.Columns.Add("SupplierId");
+                dl1.Columns.Add("SupplierName");
+                dl1.Columns.Add("Quantiry");
+                ViewState["add"] = dl1;
+                
+            }
+            
+
+        }
+
 
         protected void btnsave_Click(object sender, EventArgs e)
         {
@@ -84,7 +105,7 @@ namespace InventoryMangement1
             sqlcmd.Parameters.AddWithValue("@ProductId", Convert.ToInt32(DropDownProduct.SelectedValue));
             sqlcmd.Parameters.AddWithValue("@SupplierId", Convert.ToInt32(DropDownSupplier.SelectedValue));
             sqlcmd.Parameters.AddWithValue("@Quantity", Convert.ToInt32(txtQuantity.Text.Trim()));
-            
+
             sqlcmd.ExecuteNonQuery();
             sqlcon.Close();
             string PurchaseId = hfPurchaseId.Value;
@@ -98,6 +119,10 @@ namespace InventoryMangement1
             clear();
             DropDownProduct.ClearSelection();
             DropDownSupplier.ClearSelection();
+
+
+
+            
 
         }
 
@@ -131,5 +156,60 @@ namespace InventoryMangement1
             btndelete.Enabled = true;
 
         }
+
+        public void gridClear()
+        {
+            ViewState["add"] = null;
+            GridView2.DataSource = (DataTable)ViewState["add"];
+            GridView2.DataBind();
+        }
+
+        protected void GridView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void btnAdd_Click(object sender, EventArgs e)
+        {
+            
+
+            dl1 = (DataTable)ViewState["add"];
+            //dl1.Rows.Add(DropDownProduct.SelectedItem.Text, DropDownSupplier.SelectedItem.Text, txtQuantity.Text);
+            dl1.Rows.Add(DropDownProduct.Text,DropDownProduct.SelectedItem.Text, DropDownSupplier.Text, DropDownSupplier.SelectedItem.Text, txtQuantity.Text);
+            GridView2.DataSource = dl1;
+            GridView2.DataBind();
+        }
+
+        protected void btnAllsave_Click(object sender, EventArgs e)
+        {
+            foreach (GridViewRow gr in GridView2.Rows)
+            {
+                if (sqlcon.State == ConnectionState.Closed)
+                    sqlcon.Open();
+                SqlCommand sqlcmd = new SqlCommand("PurchasepSP", sqlcon);
+                sqlcmd.CommandType = CommandType.StoredProcedure;
+                sqlcmd.Parameters.AddWithValue("@PurchaseId", hfPurchaseId.Value == "" ? 0 : Convert.ToInt32(hfPurchaseId.Value));
+                sqlcmd.Parameters.AddWithValue("@ProductId", (gr.Cells[0].Text));
+                sqlcmd.Parameters.AddWithValue("@SupplierId",(gr.Cells[2].Text));
+                sqlcmd.Parameters.AddWithValue("@Quantity", (gr.Cells[4].Text));
+
+
+                sqlcmd.ExecuteNonQuery();
+                sqlcon.Close();
+                string PurchaseId = hfPurchaseId.Value;
+
+
+                if (PurchaseId == "")
+                    lblsuccessmassage.Text = "Saved Successfully";
+                else
+                    lblsuccessmassage.Text = "Updated Successfully";
+                FillGridView();
+                gridClear();
+
+
+
+            }
+        }
+           
     }
 }
