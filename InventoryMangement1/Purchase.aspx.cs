@@ -99,7 +99,7 @@ namespace InventoryMangement1
 
             if (sqlcon.State == ConnectionState.Closed)
                 sqlcon.Open();
-            SqlCommand sqlcmd = new SqlCommand("PurchasepSP", sqlcon);
+            SqlCommand sqlcmd = new SqlCommand("PurchasepCreateOrUpdate", sqlcon);
             sqlcmd.CommandType = CommandType.StoredProcedure;
             sqlcmd.Parameters.AddWithValue("@PurchaseId", hfPurchaseId.Value == "" ? 0 : Convert.ToInt32(hfPurchaseId.Value));
             sqlcmd.Parameters.AddWithValue("@ProductId", Convert.ToInt32(DropDownProduct.SelectedValue));
@@ -128,15 +128,40 @@ namespace InventoryMangement1
 
         protected void btndelete_Click(object sender, EventArgs e)
         {
-
+            if (sqlcon.State == ConnectionState.Closed)
+                sqlcon.Open();
+            SqlCommand cmd = new SqlCommand("PurchaseDeleteById1", sqlcon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@PurchaseId", Convert.ToInt32(hfPurchaseId.Value));
+            cmd.ExecuteNonQuery();
+            sqlcon.Close();
+            hfPurchaseId.Value = "";
+            DropDownProduct.ClearSelection();
+            DropDownSupplier.ClearSelection();
+            FillGridView();
+            lblsuccessmassage.Text = ("Delete Successfully!");
         }
 
        
 
         protected void lnk_onClick(object sender, EventArgs e)
         {
-            
 
+            int PurchaseId = Convert.ToInt32((sender as LinkButton).CommandArgument);
+            if (sqlcon.State == ConnectionState.Closed)
+                sqlcon.Open();
+            SqlDataAdapter sqlDa = new SqlDataAdapter("PurchaseViewById1", sqlcon);
+            sqlDa.SelectCommand.CommandType = CommandType.StoredProcedure;
+            sqlDa.SelectCommand.Parameters.AddWithValue("@PurchaseId", PurchaseId);
+            DataTable dtbl = new DataTable();
+            sqlDa.Fill(dtbl);
+            sqlcon.Close();
+            hfPurchaseId.Value = PurchaseId.ToString();
+            DropDownProduct.SelectedItem.Text = dtbl.Rows[0]["ProductName"].ToString();
+            DropDownSupplier.SelectedItem.Text = dtbl.Rows[0]["CompanyName"].ToString();
+            txtQuantity.Text = dtbl.Rows[0]["Quantity"].ToString();
+            btnsave.Text = "Update";
+            btndelete.Enabled = true;
 
         }
 
